@@ -3,75 +3,85 @@
   var FACIAL_URL   = 'https://nudasugaring.simplybook.me/v2/#book/category/7/count/1/';
   var BOOK_URL     = '#book';
 
+  /* =========================
+     MOBILE NAV BUTTONS
+  ========================= */
   function addMobileButtons() {
     var nav = document.querySelector('ul#sb_menu_list_items_container');
     if (!nav || nav.querySelector('.nuda-mobile-btn')) return;
 
     var items = [
-      { label: 'Book Now ✓',          href: BOOK_URL },
-      { label: 'Sugaring Services',   href: SUGARING_URL },
-      { label: 'Facial Treatments',   href: FACIAL_URL }
+      { label: 'Book Now ✓', href: BOOK_URL },
+      { label: 'Sugaring Services', href: SUGARING_URL },
+      { label: 'Facial Treatments', href: FACIAL_URL }
     ];
 
     items.forEach(function (item) {
       var li = document.createElement('li');
       var a  = document.createElement('a');
-      a.href      = item.href;
+
+      a.href = item.href;
       a.className = 'nuda-mobile-btn';
       a.textContent = item.label;
+
       li.appendChild(a);
       nav.appendChild(li);
     });
   }
 
-  function addClickToHeroBtns() {
+  /* =========================
+     HERO BUTTONS (REAL BUTTONS)
+  ========================= */
+  function addHeroButtons() {
     var bar = document.querySelector('div.bar');
-    if (!bar) return;
+    if (!bar || bar.querySelector('.nuda-hero-btn')) return;
 
-    // Make ::before (Sugaring Services) clickable via overlay link
-    if (!bar.querySelector('.nuda-hero-sugaring')) {
-      var s = document.createElement('a');
-      s.href = SUGARING_URL;
-      s.className = 'nuda-hero-sugaring';
-      s.style.cssText = [
-        'position:absolute',
-        'left:0','top:0',
-        'width:50%','height:100%',
-        'z-index:10',
-        'cursor:pointer'
-      ].join(';');
-      bar.style.position = 'relative';
-      bar.appendChild(s);
-    }
+    bar.innerHTML = ''; // remove old/fake buttons
 
-    // Make ::after (Facial Treatments) clickable
-    if (!bar.querySelector('.nuda-hero-facial')) {
-      var f = document.createElement('a');
-      f.href = FACIAL_URL;
-      f.className = 'nuda-hero-facial';
-      f.style.cssText = [
-        'position:absolute',
-        'right:0','top:0',
-        'width:50%','height:100%',
-        'z-index:10',
-        'cursor:pointer'
-      ].join(';');
-      bar.appendChild(f);
-    }
+    var items = [
+      { label: 'Sugaring Services', href: SUGARING_URL },
+      { label: 'Facial Treatments', href: FACIAL_URL }
+    ];
+
+    items.forEach(function (item) {
+      var a = document.createElement('a');
+
+      a.href = item.href;
+      a.className = 'nuda-hero-btn';
+      a.textContent = item.label;
+
+      bar.appendChild(a);
+    });
   }
 
+  /* =========================
+     MAIN RUNNER
+  ========================= */
   function run() {
     addMobileButtons();
-    addClickToHeroBtns();
+    addHeroButtons();
+  }
+
+  /* =========================
+     LOAD HANDLING
+  ========================= */
+  function init() {
+    run();
+
+    // run again after widget renders
+    setTimeout(run, 800);
+
+    // observe DOM changes (IMPORTANT for SimplyBook)
+    var observer = new MutationObserver(run);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      run();
-      setTimeout(run, 600);
-    });
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    run();
-    setTimeout(run, 600);
+    init();
   }
 })();
